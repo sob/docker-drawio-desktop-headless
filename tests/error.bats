@@ -7,5 +7,5 @@
 }
 
 @test "Output an error on unknown file with electron security warning" {
-  docker_test "-e ELECTRON_DISABLE_SECURITY_WARNINGS=false" 0 "output-unknown-file-electron-security-warning" "tests/data" -x unknown.drawio
+  docker_test "-e ELECTRON_DISABLE_SECURITY_WARNINGS=false -e NO_AT_BRIDGE=1 -e ELECTRON_NO_SANDBOX=1 -e ELECTRON_DISABLE_GPU=1" 1 "output-unknown-file-electron-security-warning" "tests/data" -x unknown.drawio
 }
