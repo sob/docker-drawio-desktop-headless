@@ -1,4 +1,4 @@
-FROM debian:bullseye
+FROM debian:sid
 ARG TARGETARCH
 
 WORKDIR "/opt/drawio-desktop"
@@ -9,7 +9,7 @@ echo "selected arch: ${TARGETARCH}"
 
 # Deps
 apt-get update
-apt-get install -y xvfb wget libgbm1 libasound2
+apt-get install -y xvfb wget libgbm1 libasound2t64
 
 # Drawio Desktop
 DRAWIO_VERSION="25.0.2"
@@ -22,7 +22,7 @@ apt-get install -y fonts-liberation \
   fonts-arphic-ukai fonts-arphic-uming \
   fonts-noto fonts-noto-cjk \
   fonts-ipafont-mincho fonts-ipafont-gothic \
-  fonts-unfonts-core
+  fonts-unfonts-core fonts-montserrat
 
 # Cleanup layer
 apt-get remove -y wget
