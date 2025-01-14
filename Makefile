@@ -7,12 +7,19 @@ else
 ARCHFLAG := "amd64"
 endif
 
+# attempt to build with docker or podman
+ifeq ($(shell command -v podman 2> /dev/null),)
+	CMD=docker
+else
+	CMD=podman
+endif
+
 DOCKER_IMAGE?=rlespinasse/drawio-desktop-headless:local
 build:
-	@docker build --build-arg="TARGETARCH=$(ARCHFLAG)" -t ${DOCKER_IMAGE} .
+	$(CMD) build --build-arg="TARGETARCH=$(ARCHFLAG)" -t ${DOCKER_IMAGE} .
 
 build-no-cache:
-	@docker build --build-arg="TARGETARCH=$(ARCHFLAG)" --no-cache --progress plain -t ${DOCKER_IMAGE} .
+	$(CMD) build --build-arg="TARGETARCH=$(ARCHFLAG)" --no-cache --progress plain -t ${DOCKER_IMAGE} .
 
 build-multiarch:
 	@docker buildx build --platform linux/amd64,linux/arm64 -t ${DOCKER_IMAGE} .
@@ -25,7 +32,7 @@ cleanup:
 RUN_ARGS?=
 DOCKER_OPTIONS?=
 run:
-	@docker run -t $(DOCKER_OPTIONS) -w /data -v $(PWD):/data ${DOCKER_IMAGE} ${RUN_ARGS}
+	$(CMD) run -t $(DOCKER_OPTIONS) -w /data -v $(PWD):/data ${DOCKER_IMAGE} ${RUN_ARGS}
 
 test: cleanup build test-ci
 
