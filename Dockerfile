@@ -1,48 +1,67 @@
-FROM debian:sid
+FROM docker.io/library/debian:sid
 ARG TARGETARCH
+ARG BUILD_DATE
+ARG VCS_REF
+LABEL org.opencontainers.image.created="${BUILD_DATE}" \
+      org.opencontainers.image.revision="${VCS_REF}" \
+      org.opencontainers.image.source="https://github.com/sob/docker-drawio-desktop-headless"
+
+# Add labels for better container metadata
+LABEL maintainer="sob" \
+      description="Draw.io Desktop in headless mode" \
+      version="25.0.2"
 
 WORKDIR "/opt/drawio-desktop"
 
-RUN <<EOF
-set -e
-echo "selected arch: ${TARGETARCH}"
+# Combine RUN commands to reduce layers and use proper cleanup in the same layer
+RUN set -e \
+    && echo "selected arch: ${TARGETARCH}" \
+    && apt-get update \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+        xvfb \
+        wget \
+        libgbm1 \
+        libasound2t64 \
+        fonts-liberation \
+        fonts-arphic-ukai \
+        fonts-arphic-uming \
+        fonts-noto \
+        fonts-noto-cjk \
+        fonts-ipafont-mincho \
+        fonts-ipafont-gothic \
+        fonts-unfonts-core \
+        fonts-montserrat \
+    && apt-get clean \
+    # Draw.io installation
+    && DRAWIO_VERSION="25.0.2" \
+    && wget -q "https://github.com/jgraph/drawio-desktop/releases/download/v${DRAWIO_VERSION}/drawio-${TARGETARCH}-${DRAWIO_VERSION}.deb" \
+    && if [ ! -f "./drawio-${TARGETARCH}-${DRAWIO_VERSION}.deb" ]; then \
+      echo "Failed to download Draw.io for architecture ${TARGETARCH}"; \
+      exit 1; \
+    fi \
+    && apt-get install -y "./drawio-${TARGETARCH}-${DRAWIO_VERSION}.deb" \
+    && rm -f "./drawio-${TARGETARCH}-${DRAWIO_VERSION}.deb" \
+    # Cleanup
+    && apt-get remove -y wget \
+    && apt-get autoremove -y \
+    && rm -rf /var/lib/apt/lists/* \
+    && chmod a+w .
 
-# Deps
-apt-get update
-apt-get install -y xvfb wget libgbm1 libasound2t64
+# Group related environment variables
+ENV DRAWIO_DESKTOP_EXECUTABLE_PATH="/opt/drawio/drawio" \
+    DRAWIO_DESKTOP_SOURCE_FOLDER="/opt/drawio-desktop" \
+    DRAWIO_DESKTOP_RUNNER_COMMAND_LINE="/opt/drawio-desktop/runner.sh" \
+    DRAWIO_DESKTOP_COMMAND_TIMEOUT="10s" \
+    DRAWIO_DISABLE_UPDATE="true"
 
-# Drawio Desktop
-DRAWIO_VERSION="25.0.2"
-wget -q https://github.com/jgraph/drawio-desktop/releases/download/v${DRAWIO_VERSION}/drawio-${TARGETARCH}-${DRAWIO_VERSION}.deb
-apt-get install -y /opt/drawio-desktop/drawio-${TARGETARCH}-${DRAWIO_VERSION}.deb
-rm -rf /opt/drawio-desktop/drawio-${TARGETARCH}-${DRAWIO_VERSION}.deb
+ENV XVFB_DISPLAY=":42" \
+    XVFB_OPTIONS="-nolisten unix"
 
-# Additional Fonts
-apt-get install -y fonts-liberation \
-  fonts-arphic-ukai fonts-arphic-uming \
-  fonts-noto fonts-noto-cjk \
-  fonts-ipafont-mincho fonts-ipafont-gothic \
-  fonts-unfonts-core fonts-montserrat
+ENV ELECTRON_DISABLE_SECURITY_WARNINGS="true" \
+    ELECTRON_ENABLE_LOGGING="false"
 
-# Cleanup layer
-apt-get remove -y wget
-rm -rf /var/lib/apt/lists/*
-
-# Enable all users to write in the WORKDIR folder
-chmod a+w .
-EOF
-
+# Copy files at the end to leverage build cache
 COPY --chmod=755 src/* ./
 
-ENV ELECTRON_DISABLE_SECURITY_WARNINGS "true"
-ENV DRAWIO_DISABLE_UPDATE "true"
-ENV DRAWIO_DESKTOP_COMMAND_TIMEOUT "10s"
-ENV DRAWIO_DESKTOP_EXECUTABLE_PATH "/opt/drawio/drawio"
-ENV DRAWIO_DESKTOP_SOURCE_FOLDER "/opt/drawio-desktop"
-ENV DRAWIO_DESKTOP_RUNNER_COMMAND_LINE "/opt/drawio-desktop/runner.sh"
-ENV XVFB_DISPLAY ":42"
-ENV XVFB_OPTIONS "-nolisten unix"
-ENV ELECTRON_ENABLE_LOGGING "false"
-
-ENTRYPOINT [ "/opt/drawio-desktop/entrypoint.sh" ]
-CMD [ "--help" ]
+ENTRYPOINT ["/opt/drawio-desktop/entrypoint.sh"]
+CMD ["--help"]

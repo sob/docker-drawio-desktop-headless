@@ -14,9 +14,12 @@ else
 	CMD=podman
 endif
 
-DOCKER_IMAGE?=rlespinasse/drawio-desktop-headless:local
+DOCKER_IMAGE?=sob/drawio-desktop-headless:local
 build:
-	$(CMD) build --build-arg="TARGETARCH=$(ARCHFLAG)" -t ${DOCKER_IMAGE} .
+	$(CMD) build --build-arg="TARGETARCH=$(ARCHFLAG)" \
+		--build-arg="BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" \
+		--build-arg="VCS_REF=$(git rev-parse --short HEAD)" \
+		-t ${DOCKER_IMAGE} .
 
 build-no-cache:
 	$(CMD) build --build-arg="TARGETARCH=$(ARCHFLAG)" --no-cache --progress plain -t ${DOCKER_IMAGE} .
