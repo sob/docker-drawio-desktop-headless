@@ -15,7 +15,7 @@
 }
 
 @test "Export as non-root" {
-  docker_test "--user $(id --user):$(id --group) -v /etc/passwd:/etc/passwd --env HOME=/data/home" 0 "export-non-root" "tests/data" -x file4.drawio
+  docker_test "--user 1000:1000 --env HOME=/data/home" 0 "export-non-root" "tests/data" -x file4.drawio
 }
 
 @test "Export using unknown argument" {
