@@ -13,7 +13,7 @@ setup() {
 
 docker_test() {
   # Get parameters
-  local docker_opts=$1
+  local docker_opts="$1 --tmpfs /tmp:rw,size=100M --shm-size=1g"
   local status=$2
   local output_file=$3
   local data_folder=$4
@@ -23,8 +23,8 @@ docker_test() {
   shift
 
   # Run command
-  echo $CONTAINER_RUNTIME container run -t $docker_opts --shm-size=1g -w /data -v $(pwd)/${data_folder:-}:/data ${DOCKER_IMAGE} "$@" >>tests/output/$output_file-command.log
-  run $CONTAINER_RUNTIME container run -t $docker_opts --shm-size=1g -w /data -v $(pwd)/${data_folder:-}:/data ${DOCKER_IMAGE} "$@"
+  echo $CONTAINER_RUNTIME container run -t $docker_opts -w /data -v $(pwd)/${data_folder:-}:/data ${DOCKER_IMAGE} "$@" >>tests/output/$output_file-command.log
+  run $CONTAINER_RUNTIME container run -t $docker_opts -w /data -v $(pwd)/${data_folder:-}:/data ${DOCKER_IMAGE} "$@"
 
   # Remove timed logging tags on electron logs by default.
   echo "$output" | tee "tests/output/$output_file.log" | sed 's#\[.*:.*/.*\..*:.*:.*\(.*\)\] ##' >"tests/output/$output_file-comp.log"
