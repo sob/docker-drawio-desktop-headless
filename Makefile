@@ -20,6 +20,7 @@ build:
 		--build-arg="BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" \
 		--build-arg="VCS_REF=$(git rev-parse --short HEAD)" \
 		-t ${DOCKER_IMAGE} .
+	$(CMD) image prune -f
 
 build-no-cache:
 	$(CMD) build --build-arg="TARGETARCH=$(ARCHFLAG)" --no-cache --progress plain -t ${DOCKER_IMAGE} .
