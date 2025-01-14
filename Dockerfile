@@ -1,4 +1,4 @@
-FROM docker.io/library/debian:sid
+FROM docker.io/library/debian:sid-20250113-slim
 ARG TARGETARCH
 ARG BUILD_DATE
 ARG VCS_REF
@@ -59,6 +59,16 @@ ENV XVFB_DISPLAY=":42" \
 
 ENV ELECTRON_DISABLE_SECURITY_WARNINGS="true" \
     ELECTRON_ENABLE_LOGGING="false"
+
+RUN mkdir -p /data/home/.config/draw.io-desktop \
+    && mkdir -p /data/home/.config/electron \
+    && mkdir -p /data/home/.cache \
+    && chmod -R 777 /data \
+    && chmod -R 777 /opt/drawio-desktop \
+    && chmod -R 777 /opt/drawio \
+    # Create electron userData directory with proper permissions
+    && mkdir -p /opt/drawio/resources/app.asar.unpacked/userData \
+    && chmod -R 777 /opt/drawio/resources
 
 # Copy files at the end to leverage build cache
 COPY --chmod=755 src/* ./
