@@ -15,11 +15,13 @@ else
 endif
 
 DOCKER_IMAGE?=sob/drawio-desktop-headless:local
+DRAWIO_VERSION?=25.0.2
 
 build:
 	$(CMD) build --build-arg="TARGETARCH=$(ARCHFLAG)" \
 		--build-arg="BUILD_DATE=$(shell date -u +'%Y-%m-%dT%H:%M:%SZ')" \
 		--build-arg="VCS_REF=$(shell git rev-parse --short HEAD)" \
+		--build-arg="DRAWIO_VERSION=$(DRAWIO_VERSION)" \
 		-f Dockerfile \
 		-t $(firstword $(DOCKER_IMAGE)) \
 		.
@@ -29,6 +31,7 @@ build-no-cache:
 	$(CMD) build --build-arg="TARGETARCH=$(ARCHFLAG)" \
 		--build-arg="BUILD_DATE=$(shell date -u +'%Y-%m-%dT%H:%M:%SZ')" \
 		--build-arg="VCS_REF=$(shell git rev-parse --short HEAD)" \
+		--build-arg="DRAWIO_VERSION=$(DRAWIO_VERSION)" \
 		--no-cache \
 		--progress plain \
 		-f Dockerfile \
@@ -42,6 +45,7 @@ build-multiarch:
 		--build-arg="BUILD_DATE=$(shell date -u +'%Y-%m-%dT%H:%M:%SZ')" \
 		--build-arg="VCS_REF=$(shell git rev-parse --short HEAD)" \
 		--build-arg="TARGETARCH=multi" \
+		--build-arg="DRAWIO_VERSION=$(DRAWIO_VERSION)" \
 		-f Dockerfile \
 		-t $(firstword $(DOCKER_IMAGE)) \
 		--push \
