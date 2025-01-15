@@ -2,7 +2,7 @@
 FROM docker.io/library/debian:sid-20250113-slim AS downloader
 LABEL stage=builder
 ARG TARGETARCH
-ARG DRAWIO_VERSION="25.0.2"
+ARG DRAWIO_VERSION
 
 WORKDIR /downloads
 
@@ -18,14 +18,14 @@ RUN set -ex \
     && if [ ! -f "./drawio-${TARGETARCH}-${DRAWIO_VERSION}.deb" ]; then \
         echo "Failed to download Draw.io for architecture ${TARGETARCH}"; \
         exit 1; \
-      fi
+    fi
 
 # Final stage
 FROM docker.io/library/debian:sid-20250113-slim
 ARG TARGETARCH
 ARG BUILD_DATE
 ARG VCS_REF
-ARG DRAWIO_VERSION="25.0.2"
+ARG DRAWIO_VERSION
 
 # Add labels
 LABEL org.opencontainers.image.created="${BUILD_DATE}" \
