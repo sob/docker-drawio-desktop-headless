@@ -15,7 +15,9 @@
 }
 
 @test "Export as non-root" {
-  docker_test "--user 1000:1000 --env HOME=/data/home" 0 "export-non-root" "tests/data" -x file4.drawio
+  local current_uid=$(id -u)
+  local current_gid=$(id -g)
+  docker_test "--user ${current_uid}:${current_gid} --env HOME=/data/home" 0 "export-non-root" "tests/data" -x file4.drawio
 }
 
 @test "Export using unknown argument" {
