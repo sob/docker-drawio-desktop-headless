@@ -44,7 +44,6 @@ build-multiarch:
 		--platform linux/amd64,linux/arm64 \
 		--build-arg="BUILD_DATE=$(shell date -u +'%Y-%m-%dT%H:%M:%SZ')" \
 		--build-arg="VCS_REF=$(shell git rev-parse --short HEAD)" \
-		--build-arg="TARGETARCH=multi" \
 		--build-arg="DRAWIO_VERSION=$(DRAWIO_VERSION)" \
 		-f Dockerfile \
 		-t $(firstword $(DOCKER_IMAGE)) \
