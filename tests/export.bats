@@ -23,8 +23,8 @@
   mkdir -p tests/data/home/.config/draw.io-desktop
   mkdir -p tests/data/home/.cache
 
-  # Set permissions
-  chmod -R 777 tests/data/home
+  # Set permissions for all test data
+  chmod -R 777 tests/data
 
   docker_test "--user ${current_uid}:${current_gid} --env HOME=/data/home --env ELECTRON_USER_DATA_DIR=/data/home/.config/electron" 0 "export-non-root" "tests/data" -x file4.drawio
 }
