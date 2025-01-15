@@ -3,3 +3,8 @@ Failed to post task
 Floss manager service not available
 InitializeSandbox
 extension not supported
+ERROR:bus.cc
+WARNING:gpu_memory_buffer_support_x11.cc
+WARNING:sandbox_linux.cc
+WARNING:bluez_dbus_manager.cc
+WARNING:sqlite_persistent_store_backend_base.cc
