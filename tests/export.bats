@@ -17,7 +17,16 @@
 @test "Export as non-root" {
   local current_uid=$(id -u)
   local current_gid=$(id -g)
-  docker_test "--user ${current_uid}:${current_gid} --env HOME=/data/home" 0 "export-non-root" "tests/data" -x file4.drawio
+
+  # Create directories in the test data folder
+  mkdir -p tests/data/home/.config/electron
+  mkdir -p tests/data/home/.config/draw.io-desktop
+  mkdir -p tests/data/home/.cache
+
+  # Set permissions
+  chmod -R 777 tests/data/home
+
+  docker_test "--user ${current_uid}:${current_gid} --env HOME=/data/home --env ELECTRON_USER_DATA_DIR=/data/home/.config/electron" 0 "export-non-root" "tests/data" -x file4.drawio
 }
 
 @test "Export using unknown argument" {
