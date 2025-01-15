@@ -20,7 +20,8 @@ build:
 		--build-arg="BUILD_DATE=$(shell date -u +'%Y-%m-%dT%H:%M:%SZ')" \
 		--build-arg="VCS_REF=$(shell git rev-parse --short HEAD)" \
 		-f Dockerfile \
-		-t ${DOCKER_IMAGE} .
+		-t $(firstword $(DOCKER_IMAGE)) \
+		.
 	$(CMD) image prune -f
 
 build-no-cache:
@@ -30,22 +31,20 @@ build-no-cache:
 		--no-cache \
 		--progress plain \
 		-f Dockerfile \
-		-t ${DOCKER_IMAGE} .
+		-t $(firstword $(DOCKER_IMAGE)) \
+		.
 
 build-multiarch:
 	@docker buildx create --use --name multiarch --driver docker-container
-	@for tag in $${DOCKER_IMAGE}; do \
-		echo "Building $$tag"; \
-		docker buildx build \
-			--platform linux/amd64,linux/arm64 \
-			--build-arg="BUILD_DATE=$(shell date -u +'%Y-%m-%dT%H:%M:%SZ')" \
-			--build-arg="VCS_REF=$(shell git rev-parse --short HEAD)" \
-			--build-arg="TARGETARCH=multi" \
-			-f Dockerfile \
-			-t "$$tag" \
-			--push \
-			.; \
-	done
+	@docker buildx build \
+		--platform linux/amd64,linux/arm64 \
+		--build-arg="BUILD_DATE=$(shell date -u +'%Y-%m-%dT%H:%M:%SZ')" \
+		--build-arg="VCS_REF=$(shell git rev-parse --short HEAD)" \
+		--build-arg="TARGETARCH=multi" \
+		-f Dockerfile \
+		-t $(firstword $(DOCKER_IMAGE)) \
+		--push \
+		.
 	@docker buildx rm multiarch
 
 cleanup:
