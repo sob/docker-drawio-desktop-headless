@@ -17,16 +17,28 @@ endif
 DOCKER_IMAGE?=sob/drawio-desktop-headless:local
 build:
 	$(CMD) build --build-arg="TARGETARCH=$(ARCHFLAG)" \
-		--build-arg="BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" \
-		--build-arg="VCS_REF=$(git rev-parse --short HEAD)" \
+		--build-arg="BUILD_DATE=$(shell date -u +'%Y-%m-%dT%H:%M:%SZ')" \
+		--build-arg="VCS_REF=$(shell git rev-parse --short HEAD)" \
+		-f Dockerfile \
 		-t ${DOCKER_IMAGE} .
 	$(CMD) image prune -f
 
 build-no-cache:
-	$(CMD) build --build-arg="TARGETARCH=$(ARCHFLAG)" --no-cache --progress plain -t ${DOCKER_IMAGE} .
+	$(CMD) build --build-arg="TARGETARCH=$(ARCHFLAG)" \
+		--build-arg="BUILD_DATE=$(shell date -u +'%Y-%m-%dT%H:%M:%SZ')" \
+		--build-arg="VCS_REF=$(shell git rev-parse --short HEAD)" \
+		--no-cache \
+		--progress plain \
+		-f Dockerfile \
+		-t ${DOCKER_IMAGE} .
 
 build-multiarch:
-	@docker buildx build --platform linux/amd64,linux/arm64 -t ${DOCKER_IMAGE} .
+	@docker buildx build \
+		--platform linux/amd64,linux/arm64 \
+		--build-arg="BUILD_DATE=$(shell date -u +'%Y-%m-%dT%H:%M:%SZ')" \
+		--build-arg="VCS_REF=$(shell git rev-parse --short HEAD)" \
+		-f Dockerfile \
+		-t ${DOCKER_IMAGE} .
 
 cleanup:
 	@rm -rf tests/output
