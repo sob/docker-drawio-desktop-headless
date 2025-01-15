@@ -66,6 +66,7 @@ jobs:
       group: build-multiarch-${{ github.ref }}-${{ github.event_name }}
       cancel-in-progress: true
     permissions:
+      contents: read
       packages: write
     steps:
       - uses: actions/checkout@v4
