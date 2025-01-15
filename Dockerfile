@@ -88,7 +88,8 @@ ENV DRAWIO_DESKTOP_EXECUTABLE_PATH="/opt/drawio/drawio" \
     XVFB_DISPLAY=":42" \
     XVFB_OPTIONS="-nolisten unix" \
     ELECTRON_DISABLE_SECURITY_WARNINGS="true" \
-    ELECTRON_ENABLE_LOGGING="false"
+    ELECTRON_ENABLE_LOGGING="false" \
+    ELECTRON_USER_DATA_DIR="/data/home/.config/electron"
 
 # Copy application files
 COPY --chmod=755 src/* ./
