@@ -33,19 +33,20 @@ build-no-cache:
 		-t ${DOCKER_IMAGE} .
 
 build-multiarch:
-	docker buildx create --use --name multiarch --driver docker-container
-	@for tag in $(DOCKER_IMAGE); do \
+	@docker buildx create --use --name multiarch --driver docker-container
+	@for tag in $${DOCKER_IMAGE}; do \
+		echo "Building $$tag"; \
 		docker buildx build \
 			--platform linux/amd64,linux/arm64 \
 			--build-arg="BUILD_DATE=$(shell date -u +'%Y-%m-%dT%H:%M:%SZ')" \
 			--build-arg="VCS_REF=$(shell git rev-parse --short HEAD)" \
 			--build-arg="TARGETARCH=multi" \
 			-f Dockerfile \
-			-t $$tag \
+			-t "$$tag" \
 			--push \
-			. ; \
+			.; \
 	done
-	docker buildx rm multiarch
+	@docker buildx rm multiarch
 
 cleanup:
 	@rm -rf tests/output

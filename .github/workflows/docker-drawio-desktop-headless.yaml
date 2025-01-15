@@ -23,9 +23,9 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository }}
           tags: |
-            type=raw,value=25.0.2
-            type=raw,value=25.0.2-{{sha}}
-            type=raw,value=latest
+            type=raw,value=${{ env.DRAWIO_VERSION }}-{{sha}}
+            type=ref,event=branch
+            type=ref,event=pr
 
       - name: Build docker image
         run: make build
@@ -74,7 +74,7 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository }}
           tags: |
-            type=raw,value={{env.DRAWIO_VERSION}}-{{sha}}
+            type=raw,value=${{ env.DRAWIO_VERSION }}-{{sha}}
             type=ref,event=branch
             type=ref,event=pr
 
@@ -103,8 +103,8 @@ jobs:
           flavor: |
             latest=false
           tags: |
-            type=raw,value=${DRAWIO_VERSION}
-            type=raw,value=${DRAWIO_VERSION}-{{sha}}
+            type=raw,value=${{ env.DRAWIO_VERSION }}
+            type=raw,value=${{ env.DRAWIO_VERSION }}-{{sha}}
             type=raw,value=latest
 
       - name: Login to GHCR
