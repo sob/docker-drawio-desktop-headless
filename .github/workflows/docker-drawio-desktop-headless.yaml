@@ -23,9 +23,9 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository }}
           tags: |
-            type=raw,value={{env.DRAWIO_VERSION}}-{{sha}}
-            type=ref,event=branch
-            type=ref,event=pr
+            type=raw,value=25.0.2
+            type=raw,value=25.0.2-{{sha}}
+            type=raw,value=latest
 
       - name: Build docker image
         run: make build
