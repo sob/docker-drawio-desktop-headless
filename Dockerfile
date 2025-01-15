@@ -69,9 +69,14 @@ RUN set -e \
                     /opt/drawio-desktop \
                     /opt/drawio \
                     /opt/drawio/resources \
-    # Cleanup
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* \
+    # Additional cleanup
+    && rm -rf /usr/share/doc/* \
+              /usr/share/man/* \
+              /usr/share/locale/* \
+              /var/cache/apt/* \
+              /var/lib/apt/lists/* \
+              /tmp/* \
+    && find /var/log -type f -delete \
     && chmod a+w .
 
 # Set environment variables
