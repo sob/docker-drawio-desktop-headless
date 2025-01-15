@@ -15,6 +15,7 @@ else
 endif
 
 DOCKER_IMAGE?=sob/drawio-desktop-headless:local
+
 build:
 	$(CMD) build --build-arg="TARGETARCH=$(ARCHFLAG)" \
 		--build-arg="BUILD_DATE=$(shell date -u +'%Y-%m-%dT%H:%M:%SZ')" \
@@ -54,8 +55,9 @@ cleanup:
 
 RUN_ARGS?=
 DOCKER_OPTIONS?=
+
 run:
-	$(CMD) run -t $(DOCKER_OPTIONS) -w /data -v $(PWD):/data ${DOCKER_IMAGE} ${RUN_ARGS}
+	$(CMD) run -t $(DOCKER_OPTIONS) -w /data -v $(PWD):/data $(firstword $(DOCKER_IMAGE)) $(RUN_ARGS)
 
 test: cleanup build test-ci
 
@@ -65,7 +67,7 @@ test-ci-setup:
 
 test-ci:
 	@mkdir -p tests/output
-	@DOCKER_IMAGE=$(DOCKER_IMAGE) npx bats --verbose-run -r tests
+	@DOCKER_IMAGE=$(firstword $(DOCKER_IMAGE)) npx bats --verbose-run -r tests
 
 autoupdate-drawio-desktop:
 	@$(eval DRAWIO_DESKTOP_RELEASE := $(shell gh release list --repo jgraph/drawio-desktop | grep "Latest" | cut -f1))
