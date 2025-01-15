@@ -65,7 +65,11 @@ RUN set -e \
                 /data/home/.config/electron \
                 /data/home/.cache \
                 /opt/drawio/resources/app.asar.unpacked/userData \
-    && chmod -R 777 /data \
+    && chown -R 1000:1000 /data \
+    && chown -R 1000:1000 /opt/drawio-desktop \
+    && chown -R 1000:1000 /opt/drawio \
+    && chown -R 1000:1000 /opt/drawio/resources \
+    && chmod -R 755 /data \
                     /opt/drawio-desktop \
                     /opt/drawio \
                     /opt/drawio/resources \
