@@ -140,7 +140,7 @@ jobs:
           # Tag with all the metadata tags
           for tag in $(echo "${{ steps.meta.outputs.tags }}" | tr '\n' ' '); do
             echo "Pushing: $tag"
-            docker tag ghcr.io/${{ github.repository }}:${DRAWIO_VERSION} $tag
+            docker tag localhost/sob/docker-drawio-desktop-headless:${{ env.DRAWIO_VERSION }} $tag
             docker push $tag
           done
           # Create GitHub Release
