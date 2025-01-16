@@ -100,13 +100,20 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           BUILD_TAGS: ${{ needs.build.outputs.tags }}
         run: |
+          # Tag and push Docker images
           for tag in $(echo "${{ steps.meta.outputs.tags }}" | tr '\n' ' '); do
             echo "Pushing: $tag"
             docker pull $(echo "$BUILD_TAGS" | tr '\n' ' ' | cut -d' ' -f1)
             docker tag $(echo "$BUILD_TAGS" | tr '\n' ' ' | cut -d' ' -f1) $tag
             docker push $tag
           done
-          # Create GitHub Release
-          gh release create v${DRAWIO_VERSION} \
-            --title "Release ${DRAWIO_VERSION}" \
-            --generate-notes
+
+          # Check if release exists
+          if ! gh release view v${DRAWIO_VERSION} &>/dev/null; then
+            # Create GitHub Release only if it doesn't exist
+            gh release create v${DRAWIO_VERSION} \
+              --title "Release ${DRAWIO_VERSION}" \
+              --generate-notes
+          else
+            echo "Release v${DRAWIO_VERSION} already exists, skipping release creation"
+          fi
