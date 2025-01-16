@@ -17,10 +17,7 @@ docker_test() {
   local status=$2
   local output_file=$3
   local data_folder=$4
-  shift
-  shift
-  shift
-  shift
+  shift 4
 
   # Run command
   echo $CONTAINER_RUNTIME container run -t $docker_opts -w /data -v $(pwd)/${data_folder:-}:/data ${DOCKER_IMAGE} "$@" >>tests/output/$output_file-command.log

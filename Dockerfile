@@ -86,7 +86,6 @@ ENV DRAWIO_DESKTOP_EXECUTABLE_PATH="/opt/drawio/drawio" \
     ELECTRON_DISABLE_SECURITY_WARNINGS="true" \
     ELECTRON_ENABLE_LOGGING="false" \
     ELECTRON_USER_DATA_DIR="/data/home/.config/electron" \
-    DBUS_SESSION_BUS_ADDRESS=unix:path=/dev/null \
     NO_AT_BRIDGE=1
 
 # Copy application files

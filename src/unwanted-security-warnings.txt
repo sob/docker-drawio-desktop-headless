@@ -3,8 +3,8 @@ Failed to post task
 Floss manager service not available
 InitializeSandbox
 extension not supported
-[*:ERROR:bus.cc*Failed to connect to the bus:*
-[*:WARNING:gpu_memory_buffer_support_x11.cc*dri3 extension not supported.
-[*:WARNING:sandbox_linux.cc*InitializeSandbox() called with multiple threads in process gpu-process.
-[*:WARNING:bluez_dbus_manager.cc*Floss manager service not available
-[*:WARNING:sqlite_persistent_store_backend_base.cc*Failed to post task from operator*
+ERROR:bus.cc
+WARNING:gpu_memory_buffer_support_x11.cc
+WARNING:sandbox_linux.cc
+WARNING:bluez_dbus_manager.cc
+WARNING:sqlite_persistent_store_backend_base.cc
