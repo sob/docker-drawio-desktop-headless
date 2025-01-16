@@ -17,64 +17,15 @@ jobs:
       cancel-in-progress: true
     permissions:
       packages: write
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Login to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GH_TOKEN }}
-
-      - name: Generate Docker metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ghcr.io/${{ github.repository }}
-          tags: |
-            type=raw,value=${{ env.DRAWIO_VERSION }}-{{sha}}
-            type=ref,event=branch
-            type=ref,event=pr
-
-      - name: Build docker image
-        run: make build
-        env:
-          DOCKER_IMAGE: ${{ steps.meta.outputs.tags }}
-
-      - name: Run tests
-        run: |
-          make test-ci-setup
-          make test-ci
-        env:
-          DOCKER_IMAGE: ${{ steps.meta.outputs.tags }}
-
-      - name: Store test artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-artifacts
-          path: |
-            tests/output/*.log
-            tests/data
-            !tests/data/*.drawio
-            !tests/data/*/*.drawio
-
-  build-multiarch:
-    runs-on: ubuntu-24.04
-    concurrency:
-      group: build-multiarch-${{ github.ref }}-${{ github.event_name }}
-      cancel-in-progress: true
-    permissions:
-      contents: read
-      packages: write
+    outputs:
+      tags: ${{ steps.meta.outputs.tags }}
     steps:
       - uses: actions/checkout@v4
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
         with:
-          platforms: 'arm64,arm'
+          platforms: 'arm64,amd64'
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -96,14 +47,28 @@ jobs:
             type=ref,event=branch
             type=ref,event=pr
 
-      - name: Build multiarch image
-        run: make build-multiarch
+      - name: Build and test docker image
+        run: |
+          make build
+          make test-ci-setup
+          make test-ci
         env:
           DOCKER_IMAGE: ${{ steps.meta.outputs.tags }}
 
+      - name: Store test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-artifacts
+          path: |
+            tests/output/*.log
+            tests/data
+            !tests/data/*.drawio
+            !tests/data/*/*.drawio
+
   release:
     runs-on: ubuntu-24.04
-    needs: [build, build-multiarch]
+    needs: build
     if: github.event_name == 'push' && github.ref == 'refs/heads/v1.x'
     permissions:
       contents: write
@@ -111,7 +76,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Generate Docker metadata
+      - name: Generate Release metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
@@ -130,17 +95,15 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GH_TOKEN }}
 
-      - name: Build and Push Image
+      - name: Tag and Push Release Images
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-          DOCKER_IMAGE: ${{ steps.meta.outputs.tags }}
+          BUILD_TAGS: ${{ needs.build.outputs.tags }}
         run: |
-          # Build and push with all tags
-          make build
-          # Tag with all the metadata tags
           for tag in $(echo "${{ steps.meta.outputs.tags }}" | tr '\n' ' '); do
             echo "Pushing: $tag"
-            docker tag localhost/sob/docker-drawio-desktop-headless:${{ env.DRAWIO_VERSION }} $tag
+            docker pull $(echo "$BUILD_TAGS" | tr '\n' ' ' | cut -d' ' -f1)
+            docker tag $(echo "$BUILD_TAGS" | tr '\n' ' ' | cut -d' ' -f1) $tag
             docker push $tag
           done
           # Create GitHub Release
